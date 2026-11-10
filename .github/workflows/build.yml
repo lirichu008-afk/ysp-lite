@@ -1,0 +1,37 @@
+name: Build My APK
+on:
+  workflow_dispatch: # 允许手动点击运行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Unzip source code
+        run: |
+          unzip source.zip -d ./my_project
+          # 假设解压后里面还有一个同名文件夹，这里直接进入该目录
+          cd ./my_project
+          ls -la
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./my_project/gradlew
+
+      - name: Build with Gradle
+        run: |
+          cd ./my_project
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-apk
+          path: my_project/app/build/outputs/apk/debug/*.apk
